@@ -1,0 +1,1 @@
+#Create a model to load data from a csv file and return it as a pandas dataframe. Columns should be "ax, ay, az, gx, gy, gz, exercise (maybe numeric, idk), and subject ID" "
