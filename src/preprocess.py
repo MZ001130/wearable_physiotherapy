@@ -5,6 +5,7 @@ Groups by (subject_id, exercise) so segments do not cross trials.
 import os
 import pandas as pd
 import numpy as np
+from typing import Union
 
 
 def load_processed_data(processed_path: str = "data/processed/exercise_data.csv") -> pd.DataFrame:
@@ -20,7 +21,7 @@ def sliding_windows(
     df: pd.DataFrame,
     window_size: int = 50,
     stride: int = 25,
-    signal_cols: list[str] | None = None,
+    signal_cols: Union[list[str], None] = None,
 ) -> tuple[list[np.ndarray], list[str], list[str]]:
     """
     Extract sliding windows per (subject_id, exercise) trial.

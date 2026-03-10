@@ -1,0 +1,2 @@
+accuracy,f1_macro,f1_weighted,n_train,n_test,train_subjects,test_subjects
+0.8072891853263459,0.8196758413444147,0.8080100991345879,19970,4198,"S20,S19,S15,S9,S12,S1,S6,S14,S2,S8,S11,S13,S7,S10,S3,S17","S5,S18,S4,S16"

@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 import joblib
+from typing import Union
 
 # Default signal column order (must match preprocess)
 SIGNAL_COLS = ["ax", "ay", "az", "wx", "wy", "wz"]
@@ -46,8 +47,8 @@ def _compute_magnitude_features(win: np.ndarray, accel_idx: list[int], gyro_idx:
 
 def extract_features(
     windows: list[np.ndarray],
-    channel_names: list[str] | None = None,
-    feature_set: list[str] | None = None,
+    channel_names: Union[list[str], None] = None,
+    feature_set: Union[list[str], None] = None,
     include_magnitude: bool = True,
 ) -> np.ndarray:
     """
@@ -86,7 +87,7 @@ def extract_features(
 
 
 def get_feature_names(
-    channel_names: list[str] | None = None,
+    channel_names: Union[list[str], None] = None,
     include_magnitude: bool = True,
 ) -> list[str]:
     """Return ordered feature names matching extract_features output."""

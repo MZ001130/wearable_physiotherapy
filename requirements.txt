@@ -7,3 +7,4 @@ seaborn
 jupyterlab
 tqdm
 joblib
+numpy
