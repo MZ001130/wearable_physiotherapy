@@ -5,6 +5,7 @@ Run from project root: python run_train_rf.py
 """
 import os
 import sys
+import time
 import numpy as np
 import pandas as pd
 import joblib
@@ -66,7 +67,11 @@ def train_and_evaluate(
     if class_labels is None:
         class_labels = sorted(set(y_train).union(set(y_test)))
 
+    start_time = time.time()
     clf.fit(X_train, y_train)
+    end_time = time.time()
+    training_time = end_time - start_time
+
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     f1_macro = f1_score(y_test, y_pred, average="macro", zero_division=0)
@@ -78,6 +83,7 @@ def train_and_evaluate(
         "f1_weighted": f1_weighted,
         "n_train": len(y_train),
         "n_test": len(y_test),
+        "training_time": training_time,
     }
     return clf, y_pred, metrics, cm
 
@@ -100,6 +106,7 @@ def save_results(
         "accuracy": metrics["accuracy"],
         "f1_macro": metrics["f1_macro"],
         "f1_weighted": metrics["f1_weighted"],
+        "training_time": metrics["training_time"],
         "n_train": metrics["n_train"],
         "n_test": metrics["n_test"],
         "train_subjects": ",".join(str(s) for s in train_subjects),
@@ -125,6 +132,29 @@ def save_results(
         joblib.dump(model, os.path.join(results_dir, f"model{suffix}.joblib"))
 
 
+def save_feature_importance_plot(
+    model: RandomForestClassifier,
+    feature_names: list[str],
+    results_dir: str = RESULTS_DIR,
+    suffix: str = "_rf",
+) -> None:
+    """Save a bar plot of the top 10 feature importances."""
+    importances = model.feature_importances_
+    forest_importances = pd.Series(importances, index=feature_names)
+    top10 = forest_importances.nlargest(10)
+
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=top10.values, y=top10.index, ax=ax)
+    ax.set_title("Top 10 Feature Importances")
+    ax.set_xlabel("Importance")
+    ax.set_ylabel("Feature")
+    fig.tight_layout()
+    fig.savefig(os.path.join(results_dir, f"feature_importance{suffix}.png"), dpi=150)
+    plt.close()
+
+
 def main() -> None:
     print("Step 1: Load raw data...")
     from src.load_data import load_and_process_data
@@ -147,7 +177,7 @@ def main() -> None:
     print(f"  -> X shape {X.shape}, saved to {FEATURE_DIR}/")
     print("Step 4: Train Random Forest (subject-independent split)...")
     from src.features import load_features
-    X, y, subject_ids, _ = load_features(FEATURE_PATH)
+    X, y, subject_ids, feature_names = load_features(FEATURE_PATH)
 
     X_train, X_test, y_train, y_test, train_subjects, test_subjects = subject_independent_split(
         X, y, subject_ids,
@@ -171,11 +201,13 @@ def main() -> None:
         model=clf,
         suffix="_rf",
     )
+    save_feature_importance_plot(clf, feature_names)
     print("Done.")
     print(f"  Accuracy: {metrics['accuracy']:.4f}")
     print(f"  F1 (macro): {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted): {metrics['f1_weighted']:.4f}")
-    print(f"  Results in {RESULTS_DIR}/ (confusion_matrix_rf.png, metrics_rf.csv, model_rf.joblib)")
+    print(f"  Training time: {metrics['training_time']:.4f}s")
+    print(f"  Results in {RESULTS_DIR}/ (confusion_matrix_rf.png, metrics_rf.csv, model_rf.joblib, feature_importance_rf.png)")
 
 
 if __name__ == "__main__":

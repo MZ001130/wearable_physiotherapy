@@ -5,6 +5,7 @@ Run from project root: python run_train_svm.py
 """
 import os
 import sys
+import time
 import numpy as np
 import pandas as pd
 import joblib
@@ -67,7 +68,11 @@ def train_and_evaluate(
     if class_labels is None:
         class_labels = sorted(set(y_train).union(set(y_test)))
 
+    start_time = time.time()
     clf.fit(X_train, y_train)
+    end_time = time.time()
+    training_time = end_time - start_time
+
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     f1_macro = f1_score(y_test, y_pred, average="macro", zero_division=0)
@@ -79,6 +84,7 @@ def train_and_evaluate(
         "f1_weighted": f1_weighted,
         "n_train": len(y_train),
         "n_test": len(y_test),
+        "training_time": training_time,
     }
     return clf, y_pred, metrics, cm
 
@@ -101,6 +107,7 @@ def save_results(
         "accuracy": metrics["accuracy"],
         "f1_macro": metrics["f1_macro"],
         "f1_weighted": metrics["f1_weighted"],
+        "training_time": metrics["training_time"],
         "n_train": metrics["n_train"],
         "n_test": metrics["n_test"],
         "train_subjects": ",".join(str(s) for s in train_subjects),
@@ -177,6 +184,7 @@ def main() -> None:
     print(f"  Accuracy: {metrics['accuracy']:.4f}")
     print(f"  F1 (macro): {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted): {metrics['f1_weighted']:.4f}")
+    print(f"  Training time: {metrics['training_time']:.4f}s")
     print(f"  Results in {RESULTS_DIR}/ (confusion_matrix_svm.png, metrics_svm.csv, model_svm.joblib)")
 
 
