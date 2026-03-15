@@ -12,7 +12,7 @@ import joblib
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, precision_score, recall_score
 from typing import Union
 
 # Ensure project root is on path
@@ -76,11 +76,15 @@ def train_and_evaluate(
 
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
+    recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
     f1_macro = f1_score(y_test, y_pred, average="macro", zero_division=0)
     f1_weighted = f1_score(y_test, y_pred, average="weighted", zero_division=0)
     cm = confusion_matrix(y_test, y_pred, labels=class_labels)
     metrics = {
         "accuracy": acc,
+        "precision": precision,
+        "recall": recall,
         "f1_macro": f1_macro,
         "f1_weighted": f1_weighted,
         "n_train": len(y_train),
@@ -106,6 +110,8 @@ def save_results(
 
     m = pd.DataFrame([{
         "accuracy": metrics["accuracy"],
+        "precision": metrics["precision"],
+        "recall": metrics["recall"],
         "f1_macro": metrics["f1_macro"],
         "f1_weighted": metrics["f1_weighted"],
         "training_time": metrics["training_time"],
@@ -182,6 +188,8 @@ def main() -> None:
     )
     print("Done.")
     print(f"  Accuracy: {metrics['accuracy']:.4f}")
+    print(f"  Precision: {metrics['precision']:.4f}")
+    print(f"  Recall: {metrics['recall']:.4f}")
     print(f"  F1 (macro): {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted): {metrics['f1_weighted']:.4f}")
     print(f"  Training time: {metrics['training_time']:.4f}s")

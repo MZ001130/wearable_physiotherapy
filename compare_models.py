@@ -50,11 +50,17 @@ def main():
     run_all_training_scripts()
     metrics = combine_metrics()
     if metrics is not None:
+        # Save combined metrics
+        metrics.to_csv(os.path.join(RESULTS_DIR, "all_metrics.csv"), index=False)
+        print(f"\nCombined metrics saved to {os.path.join(RESULTS_DIR, 'all_metrics.csv')}")
+
         # Select and rename columns for the final table
-        table = metrics[["model", "accuracy", "f1_weighted", "training_time"]].copy()
+        table = metrics[["model", "accuracy", "precision", "recall", "f1_weighted", "training_time"]].copy()
         table.rename(columns={
             "model": "Model",
             "accuracy": "Accuracy",
+            "precision": "Precision",
+            "recall": "Recall",
             "f1_weighted": "F1-Score",
             "training_time": "Time to Train (s)",
         }, inplace=True)
