@@ -25,12 +25,19 @@ def load_and_process_data():
             df['subject_id'] = parts[0]
         if 'exercise' not in df.columns:
             df['exercise'] = parts[1] if len(parts) > 1 else 'unknown'
+        if 'arm' not in df.columns:
+            arm = 'unknown'
+            if base_name.endswith('L'):
+                arm = 'left'
+            elif base_name.endswith('R'):
+                arm = 'right'
+            df['arm'] = arm
 
         combined_list.append(df)
 
     full_df = pd.concat(combined_list, ignore_index=True)
 
-    columns_to_keep = ["ax", "ay", "az", "wx", "wy", "wz", "exercise", "subject_id"]
+    columns_to_keep = ["ax", "ay", "az", "wx", "wy", "wz", "exercise", "subject_id", "arm"]
     full_df = full_df[columns_to_keep]
 
     full_df.to_csv(os.path.join(processed_data_path, output_filename), index=False)

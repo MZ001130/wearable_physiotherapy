@@ -6,6 +6,7 @@ Run from project root: python run_train_rf.py
 import os
 import sys
 import time
+import argparse
 import numpy as np
 import pandas as pd
 import joblib
@@ -20,8 +21,6 @@ if PROJECT_ROOT not in sys.path:
 os.chdir(PROJECT_ROOT)
 
 # Config (can be overridden by env or CLI later)
-WINDOW_SIZE = 50
-STRIDE = 25
 TEST_SUBJECT_FRACTION = 0.2
 N_ESTIMATORS = 100
 RANDOM_STATE = 42
